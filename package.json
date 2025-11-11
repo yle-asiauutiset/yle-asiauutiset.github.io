@@ -1,0 +1,16 @@
+{
+  "name": "yle-etusivu",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "db",
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev -w frontend",
+    "dev:backend": "npm run dev -w backend",
+    "dev:db": "npm run dev -w db",
+    "build:db": "npm run build -w db"
+  }
+}
