@@ -2,7 +2,7 @@ import "dotenv/config";
 import { openai } from "@ai-sdk/openai";
 import { generateObject, generateText } from "ai";
 import * as cheerio from "cheerio";
-import { Article, Frontpage, getDataSource } from "db";
+import { Article, ArticleInCollection, Collection, getDataSource } from "db";
 import { fileURLToPath } from "url";
 import {
   extractImprovedTitle,
@@ -10,13 +10,15 @@ import {
 } from "./title-improvement-template";
 import z from "zod";
 import { logLLMObjectResponse, logLLMTextResponse } from "./utils";
-// Example usage
+
 async function fetchArticles() {
   const dataSource = await getDataSource();
 
   // // Create a new user
   const articleRepository = dataSource.getRepository(Article);
-  const frontpageRepository = dataSource.getRepository(Frontpage);
+  const articlesInCollectionRepository =
+    dataSource.getRepository(ArticleInCollection);
+  const collectionRepository = dataSource.getRepository(Collection);
 
   const mostPopularArticles = await fetch(
     "https://yle.fi/rss/uutiset/luetuimmat"
@@ -62,11 +64,20 @@ async function fetchArticles() {
     })
   );
 
-  const frontpage = frontpageRepository.create({
-    articles,
+  const frontpage = collectionRepository.create({});
+
+  await collectionRepository.save(frontpage);
+
+  const promises = articles.map(async (article, index) => {
+    const articleInCollection = articlesInCollectionRepository.create({
+      articleUrl: article.url,
+      collectionId: frontpage.id,
+      order: index + 1,
+    });
+    await articlesInCollectionRepository.save(articleInCollection);
   });
 
-  await frontpageRepository.save(frontpage);
+  await Promise.all(promises);
 
   console.log("Created new frontpage with articles:", articles.length);
 }
@@ -74,7 +85,6 @@ async function fetchArticles() {
 async function processArticles() {
   const dataSource = await getDataSource();
 
-  const frontpageRepository = dataSource.getRepository(Frontpage);
   const articleRepository = dataSource.getRepository(Article);
 
   const articlesToProcess = await articleRepository.find({

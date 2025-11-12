@@ -2,12 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
   ManyToMany,
   PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Frontpage } from "./Frontpage";
+import { Collection } from "./Collection";
 
 @Entity()
 export class Article {
@@ -35,8 +36,11 @@ export class Article {
   @Column({ type: "boolean", default: false })
   didProcessTitle!: boolean;
 
-  @ManyToMany(() => Frontpage, (frontpage) => frontpage.articles)
-  frontpages!: Frontpage[];
+  @ManyToMany(() => Collection, (collection) => collection.articles)
+  @JoinTable({
+    name: "article_in_collection",
+  })
+  collections!: Collection[];
 
   @CreateDateColumn()
   createdAt!: Date;

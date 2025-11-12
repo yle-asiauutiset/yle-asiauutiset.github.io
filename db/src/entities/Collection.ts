@@ -9,12 +9,14 @@ import { ManyToMany, JoinTable } from "typeorm";
 import { Article } from "./Article";
 
 @Entity()
-export class Frontpage {
+export class Collection {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToMany(() => Article, (article) => article.frontpages, { cascade: true })
-  @JoinTable()
+  @ManyToMany(() => Article)
+  @JoinTable({
+    name: "article_in_collection",
+  })
   articles!: Article[];
 
   @CreateDateColumn()

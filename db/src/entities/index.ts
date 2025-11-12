@@ -1,2 +1,3 @@
 export * from "./Article";
-export * from "./Frontpage";
+export * from "./Collection";
+export * from "./ArticleInCollection";
