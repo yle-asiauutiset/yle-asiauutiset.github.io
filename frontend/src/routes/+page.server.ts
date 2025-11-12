@@ -4,18 +4,12 @@ import { Collection, getDataSource } from 'shared';
 
 export const load: PageServerLoad = async () => {
 	try {
-		const dataSource = await getDataSource();
-		const collectionRepository = dataSource.getRepository(Collection);
+		const orm = await getDataSource();
+		const em = orm.em.fork();
 
-		const frontpage = await collectionRepository
-			.find({
-				order: { createdAt: 'DESC' },
-				relations: {
-					articles: true
-				},
-				take: 1
-			})
-			.then((fp) => fp?.[0]);
+		const frontpage = await em
+			.find(Collection, {}, { populate: ['articles'], orderBy: { createdAt: 'DESC' }, limit: 1 })
+			.then((cols) => cols[0]);
 
 		return {
 			date: frontpage?.createdAt ?? null,

@@ -1,30 +1,21 @@
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToOne,
-  OneToOne,
-  PrimaryColumn,
-} from "typeorm";
-import { Article } from "./Article";
-import { Collection } from "./Collection";
+import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
+import { Article } from "./Article.js";
+import { Collection } from "./Collection.js";
 
-@Entity("article_in_collection")
+@Entity({ tableName: "article_in_collection" })
 export class ArticleInCollection {
-  @PrimaryColumn({ type: "text", nullable: false })
-  articleUrl!: string;
+  // @PrimaryKey({ type: "string" })
+  // articleUrl!: string;
 
-  @PrimaryColumn({ type: "int", nullable: false })
-  collectionId!: number;
+  // @PrimaryKey({ type: "number" })
+  // collectionId!: number;
 
-  @ManyToOne(() => Article)
-  @JoinTable()
+  @ManyToOne(() => Article, { primary: true })
   article!: Article;
 
-  @ManyToOne(() => Collection)
-  @JoinTable()
+  @ManyToOne(() => Collection, { primary: true })
   collection!: Collection;
 
-  @Column({ type: "int", nullable: false })
+  @Property({ type: "number" })
   order!: number;
 }

@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import { DataSource } from "typeorm";
 import { fileURLToPath } from "url";
 import { Article } from "./entities/Article";
 import { Collection } from "./entities/Collection";
@@ -7,34 +6,31 @@ import { getDataSource } from "./data-source";
 
 // Example usage
 async function main() {
-  const dataSource = await getDataSource();
+  const orm = await getDataSource();
+  const em = orm.em.fork();
 
-  // Create a new user
-  const articleRepository = dataSource.getRepository(Article);
-  const frontpageRepository = dataSource.getRepository(Collection);
+  // Create a new article
+  const articleRepository = em.getRepository(Article);
+  const collectionRepository = em.getRepository(Collection);
 
-  // const newArticle = articleRepository.create({
-  //   title: "New Article",
-  //   imageUrl: "http://example.com/image.jpg",
-  //   url: "http://example.com/article",
-  // });
+  // const newArticle = new Article();
+  // newArticle.url = "http://example.com/article";
+  // newArticle.title = "New Article";
+  // newArticle.imageUrl = "http://example.com/image.jpg";
 
-  // await articleRepository.save(newArticle);
+  // await em.persistAndFlush(newArticle);
   // console.log("Article saved:", newArticle);
 
-  // const newFrontpage = frontpageRepository.create({
-  //   articles: [newArticle],
-  // });
+  // const newCollection = new Collection();
+  // await em.persistAndFlush(newCollection);
+  // console.log("Collection saved:", newCollection);
 
-  // await frontpageRepository.save(newFrontpage);
-  // console.log("Frontpage saved:", newFrontpage);
-
-  // // Find all users
-  // const users = await articleRepository.find();
-  // console.log("All articles:", users);
+  // // Find all articles
+  // const articles = await articleRepository.findAll();
+  // console.log("All articles:", articles);
 }
 
 // Run if this file is executed directly
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  main().catch(console.error);
-}
+// if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+//   main().catch(console.error);
+// }

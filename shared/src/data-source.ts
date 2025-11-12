@@ -1,23 +1,18 @@
 import "reflect-metadata";
-import { DataSource } from "typeorm";
-import { Article } from "./entities/Article";
-import { Collection } from "./entities/Collection";
-import { ArticleInCollection } from "./entities";
+import {
+  BetterSqliteDriver,
+  defineConfig,
+  MikroORM,
+} from "@mikro-orm/better-sqlite";
+import config from "./mikro-orm.config";
 
-const _dataSource = new DataSource({
-  type: "better-sqlite3",
-  database: "../data/database.sqlite",
-  synchronize: true, // Auto-create tables (disable in production!)
-  logging: true,
-  migrations: ["dist/migrations/*.js"],
-  entities: [Article, Collection, ArticleInCollection],
-});
+let _orm: Awaited<ReturnType<typeof MikroORM.init>> | null = null;
 
 export const getDataSource = async () => {
-  if (!_dataSource.isInitialized) {
-    await _dataSource.initialize();
+  if (!_orm) {
+    _orm = await MikroORM.init(config);
     console.info("Data Source has been initialized!");
   }
 
-  return _dataSource;
+  return _orm;
 };

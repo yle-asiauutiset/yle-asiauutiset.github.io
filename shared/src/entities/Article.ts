@@ -1,50 +1,37 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from "typeorm";
-import { Collection } from "./Collection";
+import { Entity, Opt, PrimaryKey, Property } from "@mikro-orm/core";
 
 @Entity()
 export class Article {
-  @PrimaryColumn({ type: "text", nullable: false })
+  @PrimaryKey({ type: "string" })
   url!: string;
 
-  @Column({ type: "text", nullable: false })
+  @Property({ type: "string" })
   title!: string;
 
-  @Column({ type: "text", nullable: true })
+  @Property({ type: "string", nullable: true })
   description?: string;
 
-  @Column({ type: "text", nullable: true })
+  @Property({ type: "string", nullable: true })
   body?: string;
 
-  @Column({ type: "text", nullable: true })
+  @Property({ type: "string", nullable: true })
   imageUrl?: string;
 
-  @Column({ type: "datetime", nullable: true })
+  @Property({ type: "date", nullable: true })
   publishedAt?: Date;
 
-  @Column({ type: "text", nullable: true })
+  @Property({ type: "string", nullable: true })
   correctedTitle?: string;
 
-  @Column({ type: "boolean", default: false })
-  didProcessTitle!: boolean;
+  @Property({ type: "boolean", default: false })
+  didProcessTitle: boolean & Opt = false;
 
   // @ManyToMany(() => Collection, (collection) => collection.articles)
-  // @JoinTable({
-  //   name: "article_in_collection",
-  // })
-  // collections!: Collection[];
+  // collections!: MikroCollection<Collection>;
 
-  @CreateDateColumn()
-  createdAt!: Date;
+  @Property({ type: "date" })
+  createdAt: Date & Opt = new Date();
 
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @Property({ type: "date", onUpdate: () => new Date() })
+  updatedAt: Date & Opt = new Date();
 }

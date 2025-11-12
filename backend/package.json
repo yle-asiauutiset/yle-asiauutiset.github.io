@@ -18,11 +18,13 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.44",
+    "@ai-sdk/google": "^2.0.31",
     "@ai-sdk/openai": "^2.0.65",
     "ai": "^5.0.92",
     "cheerio": "^1.1.2",
-    "shared": "^1.0.0",
     "dotenv": "^17.2.3",
+    "shared": "^1.0.0",
     "zod": "^4.1.12"
   }
 }

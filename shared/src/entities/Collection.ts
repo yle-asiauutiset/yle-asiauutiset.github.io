@@ -1,27 +1,26 @@
 import {
-  Column,
-  CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from "typeorm";
-import { ManyToMany, JoinTable } from "typeorm";
-import { Article } from "./Article";
+  ManyToMany,
+  PrimaryKey,
+  Property,
+  Collection as MikroCollection,
+  Opt,
+} from "@mikro-orm/core";
+import { Article } from "./Article.js";
+import { ArticleInCollection } from "./ArticleInCollection.js";
 
 @Entity()
 export class Collection {
-  @PrimaryGeneratedColumn()
+  @PrimaryKey()
   id!: number;
 
-  // @ManyToMany(() => Article)
-  // @JoinTable({
-  //   name: "article_in_collection",
-  // })
-  // articles!: Article[];
+  @ManyToMany(() => Article)
+  @ManyToMany({ entity: () => Article, pivotEntity: () => ArticleInCollection })
+  articles!: MikroCollection<Article>;
 
-  @CreateDateColumn()
-  createdAt!: Date;
+  @Property({ type: "date" })
+  createdAt: Date & Opt = new Date();
 
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @Property({ type: "date", onUpdate: () => new Date() })
+  updatedAt: Date & Opt = new Date();
 }

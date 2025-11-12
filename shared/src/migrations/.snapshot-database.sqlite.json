@@ -1,0 +1,273 @@
+{
+  "namespaces": [],
+  "tables": [
+    {
+      "columns": {
+        "url": {
+          "name": "url",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
+        },
+        "image_url": {
+          "name": "image_url",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "date"
+        },
+        "corrected_title": {
+          "name": "corrected_title",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
+        },
+        "did_process_title": {
+          "name": "did_process_title",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "default": "false",
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "date"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "date"
+        }
+      },
+      "name": "article",
+      "indexes": [
+        {
+          "keyName": "primary",
+          "columnNames": [
+            "url"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {},
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "length": null,
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "date"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "date"
+        }
+      },
+      "name": "collection",
+      "indexes": [
+        {
+          "keyName": "primary",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {},
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "article_url": {
+          "name": "article_url",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
+        "collection_id": {
+          "name": "collection_id",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "integer"
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "integer"
+        }
+      },
+      "name": "article_in_collection",
+      "indexes": [
+        {
+          "columnNames": [
+            "article_url"
+          ],
+          "composite": false,
+          "keyName": "article_in_collection_article_url_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "collection_id"
+          ],
+          "composite": false,
+          "keyName": "article_in_collection_collection_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "primary",
+          "columnNames": [
+            "article_url",
+            "collection_id"
+          ],
+          "composite": true,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "article_in_collection_article_url_foreign": {
+          "constraintName": "article_in_collection_article_url_foreign",
+          "columnNames": [
+            "article_url"
+          ],
+          "localTableName": "article_in_collection",
+          "referencedColumnNames": [
+            "url"
+          ],
+          "referencedTableName": "article",
+          "updateRule": "cascade"
+        },
+        "article_in_collection_collection_id_foreign": {
+          "constraintName": "article_in_collection_collection_id_foreign",
+          "columnNames": [
+            "collection_id"
+          ],
+          "localTableName": "article_in_collection",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "collection",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    }
+  ],
+  "nativeEnums": {}
+}

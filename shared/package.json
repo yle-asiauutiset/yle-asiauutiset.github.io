@@ -9,9 +9,12 @@
     "start": "tsx src/main.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "typeorm": "ts-node ",
-    "typeorm:run-migrations": "npm run typeorm migration:run -- -d ./dist/data-source.js",
-    "typeorm:generate-migration": "npm run typeorm migration:generate -- -d ./dist/data-source.js"
+    "mikro-orm:debug": "mikro-orm-esm debug",
+    "mikro-orm:migration:create": "mikro-orm-esm migration:create",
+    "mikro-orm:migration:up": "mikro-orm-esm migration:up",
+    "mikro-orm:migration:check": "mikro-orm-esm migration:check",
+    "mikro-orm:schema:create": "mikro-orm-esm schema:create",
+    "mikro-orm:schema:update": "mikro-orm-esm schema:update"
   },
   "author": "",
   "license": "ISC",
@@ -24,8 +27,16 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "better-sqlite3": "^12.4.1",
-    "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.27"
+    "@mikro-orm/better-sqlite": "^6.6.0",
+    "@mikro-orm/cli": "^6.6.0",
+    "@mikro-orm/core": "^6.6.0",
+    "@mikro-orm/migrations": "^6.6.0",
+    "reflect-metadata": "^0.2.2"
+  },
+  "mikro-orm": {
+    "configPaths": [
+      "./dist/mikro-orm.config.js",
+      "./src/mikro-orm.config.ts"
+    ]
   }
 }

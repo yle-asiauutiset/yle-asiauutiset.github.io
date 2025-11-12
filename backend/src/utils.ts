@@ -6,17 +6,7 @@ export const logLLMTextResponse = (
   console.log("=== LLM Response Log ===");
   console.log(`Response from LLM (${res.text.length})`, res.text);
   console.log("========================");
-  console.log(`Response body:`, res.response.body);
-  console.log("========================");
-  console.log(
-    `Response reasoning:`,
-    res.reasoning.map((m) => m.text).join("\n")
-  );
-  console.log("========================");
-  console.log(
-    `Response messages:`,
-    JSON.stringify(res.response.messages, null, 2)
-  );
+  console.log(`Response:`, JSON.stringify(res.response, null, 2));
   console.log("========================");
   console.log(`Response total tokens:`, res.usage.totalTokens);
 
@@ -24,16 +14,14 @@ export const logLLMTextResponse = (
 };
 
 export const logLLMObjectResponse = <
-  T extends Awaited<ReturnType<typeof generateObject>>
+  T extends Awaited<ReturnType<typeof generateObject>>,
 >(
   res: T
 ): T => {
   console.log("=== LLM Response Log ===");
   console.log(`Response from LLM`, res.object);
   console.log("========================");
-  console.log(`Response body:`, res.response.body);
-  console.log("========================");
-  console.log(`Response reasoning:`, res.reasoning);
+  console.log(`Response:`, JSON.stringify(res as any, null, 2));
   console.log("========================");
   console.log(`Response total tokens:`, res.usage.totalTokens);
 

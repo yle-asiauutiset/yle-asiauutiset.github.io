@@ -1,7 +1,7 @@
-import "dotenv/config";
-import { openai } from "@ai-sdk/openai";
-import { generateObject, generateText } from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
+import { generateObject } from "ai";
 import * as cheerio from "cheerio";
+import "dotenv/config";
 import {
   Article,
   ArticleInCollection,
@@ -9,21 +9,13 @@ import {
   getDataSource,
 } from "shared";
 import { fileURLToPath } from "url";
-import {
-  extractImprovedTitle,
-  getTitleImprovementTemplate,
-} from "./title-improvement-template";
 import z from "zod";
-import { logLLMObjectResponse, logLLMTextResponse } from "./utils";
+import { getTitleImprovementTemplate } from "./title-improvement-template";
+import { logLLMObjectResponse } from "./utils";
 
 async function fetchArticles() {
   const dataSource = await getDataSource();
-
-  // // Create a new user
-  const articleRepository = dataSource.getRepository(Article);
-  const articlesInCollectionRepository =
-    dataSource.getRepository(ArticleInCollection);
-  const collectionRepository = dataSource.getRepository(Collection);
+  const em = dataSource.em.fork();
 
   const mostPopularArticles = await fetch(
     "https://yle.fi/rss/uutiset/luetuimmat"
@@ -49,12 +41,12 @@ async function fetchArticles() {
 
   const articles = await Promise.all(
     mostPopularArticles.map(async (articleData) => {
-      const exists = await articleRepository.findOneBy({
+      const exists = await em.findOne(Article, {
         url: articleData.link,
       });
 
       if (!exists) {
-        const newArticle = articleRepository.create({
+        const newArticle = em.create(Article, {
           title: articleData.title,
           url: articleData.link,
           description: articleData.description,
@@ -62,24 +54,25 @@ async function fetchArticles() {
         });
 
         console.log("Saved new article:", newArticle.title);
-        return await articleRepository.save(newArticle);
+        await em.persistAndFlush(newArticle);
+        return newArticle;
       } else {
         return exists;
       }
     })
   );
 
-  const frontpage = collectionRepository.create({});
+  const frontpage = em.create(Collection, {});
 
-  await collectionRepository.save(frontpage);
+  await em.persistAndFlush(frontpage);
 
   const promises = articles.map(async (article, index) => {
-    const articleInCollection = articlesInCollectionRepository.create({
-      articleUrl: article.url,
-      collectionId: frontpage.id,
+    const articleInCollection = em.create(ArticleInCollection, {
+      article: article,
+      collection: frontpage,
       order: index + 1,
     });
-    await articlesInCollectionRepository.save(articleInCollection);
+    await em.persistAndFlush(articleInCollection);
   });
 
   await Promise.all(promises);
@@ -89,16 +82,17 @@ async function fetchArticles() {
 
 async function processArticles() {
   const dataSource = await getDataSource();
+  const em = dataSource.em.fork();
 
-  const articleRepository = dataSource.getRepository(Article);
-
-  const articlesToProcess = await articleRepository.find({
-    where: {
-      didProcessTitle: false,
-    },
+  const articlesToProcess = await em.find(Article, {
+    didProcessTitle: false,
   });
 
-  const processPromises = articlesToProcess.map(async (article) => {
+  for (const article of articlesToProcess.slice(
+    0,
+    Number(process.env.MAX_PROCESSED_ARTICLES) || articlesToProcess.length
+  )) {
+    console.log("Processing article:", article.title, article.url);
     const articleBody = await fetch(article.url)
       .then((res) => res.text())
       .then((html) => {
@@ -144,27 +138,49 @@ async function processArticles() {
     // }).then(logLLMTextResponse);
 
     // const extractImprovedTitlePrompt = extractImprovedTitle({ analysis });
+    console.log("Generating improved title");
     const { object } = await generateObject({
-      model: openai("gpt-5"),
+      model: anthropic("claude-sonnet-4-5-20250929"),
       schema: z.object({
         improvedTitle: z.string().optional(),
       }),
       prompt: titleImprovementPrompt,
-    }).then(logLLMObjectResponse);
+      maxRetries: 1,
+    })
+      .then(logLLMObjectResponse)
+      .catch((err) => {
+        console.error("Error generating improved title:", err);
+        return { object: undefined };
+      });
+
+    if (!object) {
+      console.error("Failed to extract improved title.");
+      return;
+    }
 
     console.log("Extracted object:", object, "\n\n===\n\n");
 
     article.correctedTitle = object.improvedTitle || undefined;
     article.didProcessTitle = true;
     article.body = articleBody || undefined;
-    await articleRepository.save(article);
+    await em.persistAndFlush(article);
 
     console.log(
       `Processed article: "${article.title}" -> "${article.correctedTitle}"`
     );
-  });
 
-  await Promise.all(processPromises);
+    if (
+      process.env.RATE_LIMIT_REQUESTS_PER_MINUTE &&
+      articlesToProcess.indexOf(article) < articlesToProcess.length - 1
+    ) {
+      const delay =
+        (60 / Number(process.env.RATE_LIMIT_REQUESTS_PER_MINUTE)) * 1000 + 2000;
+      console.log(`Waiting for ${delay} ms to respect rate limits...`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+
+  console.log("Article processing completed.");
 }
 
 // Run if this file is executed directly
@@ -172,5 +188,6 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   (async () => {
     await fetchArticles().catch(console.error);
     await processArticles().catch(console.error);
+    await getDataSource().then((ds) => ds.close());
   })();
 }
