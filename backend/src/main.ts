@@ -15,6 +15,7 @@ import {
   getTitleImprovementTemplate,
 } from "./title-improvement-template";
 import { logLLMObjectResponse, logLLMTextResponse } from "./utils";
+import { openai } from "@ai-sdk/openai";
 
 async function fetchArticles() {
   const dataSource = await getDataSource();
@@ -106,7 +107,7 @@ async function processArticles() {
         let body = "";
         const content = doc("section.yle__article__content, div.post-content");
         console.log("Article content length:", content.text().length);
-        const paragraphs = content.find("p");
+        const paragraphs = content.find("p, h2");
         console.log("Article paragraphs found:", paragraphs.length);
         paragraphs.each((i, el) => {
           body += doc(el).text() + "\n";
@@ -135,15 +136,20 @@ async function processArticles() {
       body: articleBody,
     });
 
+    console.log(
+      "Generating analysis for title improvement",
+      titleImprovementPrompt
+    );
+
     const { text: analysis } = await generateText({
-      model: anthropic("claude-sonnet-4-5-20250929"),
+      model: openai("gpt-5"),
       prompt: titleImprovementPrompt,
     }).then(logLLMTextResponse);
 
     const extractImprovedTitlePrompt = extractImprovedTitle({ analysis });
     console.log("Generating improved title");
     const { object } = await generateObject({
-      model: anthropic("claude-haiku-4-5-20251001"),
+      model: openai("gpt-5-nano"),
       schema: z.object({
         improvedTitle: z.string().optional(),
       }),
