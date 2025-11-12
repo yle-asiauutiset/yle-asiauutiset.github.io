@@ -2,5 +2,6 @@
 @plugin '@tailwindcss/typography';
 
 body {
-	@apply text-sm md:text-base;
+	background-color: #131415;
+	@apply text-sm text-white md:text-base;
 }

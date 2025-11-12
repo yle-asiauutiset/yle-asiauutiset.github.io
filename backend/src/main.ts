@@ -83,18 +83,24 @@ async function processArticles() {
     },
   });
 
-  const processPromises = articlesToProcess.slice(0, 3).map(async (article) => {
+  const processPromises = articlesToProcess.map(async (article) => {
     const articleBody = await fetch(article.url)
       .then((res) => res.text())
       .then((html) => {
         const doc = cheerio.load(html);
 
+        console.log("Fetched article body for URL:", article.url);
+
         let body = "";
-        const content = doc("section.yle__article__content");
+        const content = doc("section.yle__article__content, div.post-content");
+        console.log("Article content length:", content.text().length);
         const paragraphs = content.find("p");
+        console.log("Article paragraphs found:", paragraphs.length);
         paragraphs.each((i, el) => {
           body += doc(el).text() + "\n";
         });
+
+        console.log("Extracted article body length:", body.length);
 
         return body;
       })
@@ -117,24 +123,25 @@ async function processArticles() {
       body: articleBody,
     });
 
-    const { text: analysis } = await generateText({
-      model: openai("gpt-5-mini"),
-      prompt: titleImprovementPrompt,
-    }).then(logLLMTextResponse);
+    // const { text: analysis } = await generateText({
+    //   model: openai("gpt-5-mini"),
+    //   prompt: titleImprovementPrompt,
+    // }).then(logLLMTextResponse);
 
-    const extractImprovedTitlePrompt = extractImprovedTitle({ analysis });
+    // const extractImprovedTitlePrompt = extractImprovedTitle({ analysis });
     const { object } = await generateObject({
-      model: openai("gpt-5-nano"),
+      model: openai("gpt-5"),
       schema: z.object({
         improvedTitle: z.string().optional(),
       }),
-      prompt: extractImprovedTitlePrompt,
+      prompt: titleImprovementPrompt,
     }).then(logLLMObjectResponse);
 
     console.log("Extracted object:", object, "\n\n===\n\n");
 
     article.correctedTitle = object.improvedTitle || undefined;
     article.didProcessTitle = true;
+    article.body = articleBody || undefined;
     await articleRepository.save(article);
 
     console.log(
