@@ -36,11 +36,11 @@ export class Article {
   @Column({ type: "boolean", default: false })
   didProcessTitle!: boolean;
 
-  @ManyToMany(() => Collection, (collection) => collection.articles)
-  @JoinTable({
-    name: "article_in_collection",
-  })
-  collections!: Collection[];
+  // @ManyToMany(() => Collection, (collection) => collection.articles)
+  // @JoinTable({
+  //   name: "article_in_collection",
+  // })
+  // collections!: Collection[];
 
   @CreateDateColumn()
   createdAt!: Date;

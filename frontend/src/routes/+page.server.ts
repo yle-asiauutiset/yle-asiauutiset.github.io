@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import type { PageServerLoad } from './$types';
-import { Collection, getDataSource } from 'db';
+import { Collection, getDataSource } from 'shared';
 
 export const load: PageServerLoad = async () => {
 	try {

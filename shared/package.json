@@ -1,5 +1,5 @@
 {
-  "name": "db",
+  "name": "shared",
   "version": "1.0.0",
   "type": "module",
   "main": "./src/main.ts",
@@ -8,7 +8,10 @@
     "dev": "tsx src/main.ts",
     "start": "tsx src/main.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "typeorm": "ts-node ",
+    "typeorm:run-migrations": "npm run typeorm migration:run -- -d ./dist/data-source.js",
+    "typeorm:generate-migration": "npm run typeorm migration:generate -- -d ./dist/data-source.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +19,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.10.0",
+    "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },

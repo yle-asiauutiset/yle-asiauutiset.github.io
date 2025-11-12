@@ -9,6 +9,7 @@ const _dataSource = new DataSource({
   database: "../data/database.sqlite",
   synchronize: true, // Auto-create tables (disable in production!)
   logging: true,
+  migrations: ["dist/migrations/*.js"],
   entities: [Article, Collection, ArticleInCollection],
 });
 

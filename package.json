@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "db",
+    "shared",
     "frontend",
     "backend"
   ],
   "scripts": {
     "dev:frontend": "npm run dev -w frontend",
     "dev:backend": "npm run dev -w backend",
-    "dev:db": "npm run dev -w db",
-    "build:db": "npm run build -w db"
+    "dev:shared": "npm run dev -w shared",
+    "build:shared": "npm run build -w shared"
   }
 }

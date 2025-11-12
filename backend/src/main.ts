@@ -2,7 +2,12 @@ import "dotenv/config";
 import { openai } from "@ai-sdk/openai";
 import { generateObject, generateText } from "ai";
 import * as cheerio from "cheerio";
-import { Article, ArticleInCollection, Collection, getDataSource } from "db";
+import {
+  Article,
+  ArticleInCollection,
+  Collection,
+  getDataSource,
+} from "shared";
 import { fileURLToPath } from "url";
 import {
   extractImprovedTitle,
