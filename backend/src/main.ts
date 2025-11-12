@@ -1,5 +1,5 @@
 import { anthropic } from "@ai-sdk/anthropic";
-import { generateObject } from "ai";
+import { generateObject, generateText } from "ai";
 import * as cheerio from "cheerio";
 import "dotenv/config";
 import {
@@ -10,8 +10,11 @@ import {
 } from "shared";
 import { fileURLToPath } from "url";
 import z from "zod";
-import { getTitleImprovementTemplate } from "./title-improvement-template";
-import { logLLMObjectResponse } from "./utils";
+import {
+  extractImprovedTitle,
+  getTitleImprovementTemplate,
+} from "./title-improvement-template";
+import { logLLMObjectResponse, logLLMTextResponse } from "./utils";
 
 async function fetchArticles() {
   const dataSource = await getDataSource();
@@ -132,20 +135,19 @@ async function processArticles() {
       body: articleBody,
     });
 
-    // const { text: analysis } = await generateText({
-    //   model: openai("gpt-5-mini"),
-    //   prompt: titleImprovementPrompt,
-    // }).then(logLLMTextResponse);
+    const { text: analysis } = await generateText({
+      model: anthropic("claude-sonnet-4-5-20250929"),
+      prompt: titleImprovementPrompt,
+    }).then(logLLMTextResponse);
 
-    // const extractImprovedTitlePrompt = extractImprovedTitle({ analysis });
+    const extractImprovedTitlePrompt = extractImprovedTitle({ analysis });
     console.log("Generating improved title");
     const { object } = await generateObject({
-      model: anthropic("claude-sonnet-4-5-20250929"),
+      model: anthropic("claude-haiku-4-5-20251001"),
       schema: z.object({
         improvedTitle: z.string().optional(),
       }),
-      prompt: titleImprovementPrompt,
-      maxRetries: 1,
+      prompt: extractImprovedTitlePrompt,
     })
       .then(logLLMObjectResponse)
       .catch((err) => {
