@@ -3,6 +3,7 @@
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
+	"exports": "./build",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -17,6 +18,7 @@
 		"@eslint/compat": "^1.4.0",
 		"@eslint/js": "^9.38.0",
 		"@sveltejs/adapter-auto": "^7.0.0",
+		"@sveltejs/adapter-node": "^5.4.0",
 		"@sveltejs/kit": "^2.47.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
 		"@tailwindcss/typography": "^0.5.19",
@@ -37,7 +39,7 @@
 		"vite": "^7.1.10"
 	},
 	"dependencies": {
-		"shared": "^1.0.0",
-		"reflect-metadata": "^0.2.2"
+		"reflect-metadata": "^0.2.2",
+		"shared": "^1.0.0"
 	}
 }
