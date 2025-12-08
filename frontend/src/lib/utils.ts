@@ -33,3 +33,9 @@ export function aikaasitten(date: Date): string {
 
 	return ero === 1 ? '1 sekunti sitten' : `${ero} sekuntia sitten`;
 }
+
+export function getDateString(date = new Date()) {
+	return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+		date.getDate()
+	).padStart(2, '0')}`;
+}

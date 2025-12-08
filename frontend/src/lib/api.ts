@@ -1,8 +1,7 @@
 import type { Feed } from 'shared';
+import { getDateString } from './utils';
 
-export async function getFeed(
-	opts: { date: string } = { date: new Date().toISOString().split('T')[0] }
-): Promise<Feed> {
+export async function getFeed(opts: { date: string } = { date: getDateString() }): Promise<Feed> {
 	const { date } = opts;
 
 	console.log(

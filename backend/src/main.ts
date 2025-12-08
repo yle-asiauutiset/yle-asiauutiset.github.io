@@ -6,8 +6,9 @@ import {
   Article,
   ArticleInCollection,
   Collection,
-  Frontpage,
+  Feed,
   getDataSource,
+  getDateString,
 } from "shared";
 import { fileURLToPath } from "url";
 import z from "zod";
@@ -191,7 +192,7 @@ async function publishFrontpage() {
   const dataSource = await getDataSource();
   const em = dataSource.em.fork();
 
-  const date = new Date().toISOString().split("T")[0];
+  const date = getDateString();
 
   const collection = await em
     .find(
@@ -206,7 +207,7 @@ async function publishFrontpage() {
     return;
   }
 
-  const frontpage: Frontpage = {
+  const frontpage: Feed = {
     articles: collection.articles.map((article) => ({
       ...article,
       publishedAt: new Date(article.publishedAt as any)?.toISOString(),
@@ -235,7 +236,9 @@ async function publishFrontpage() {
     if (!res.ok) {
       throw new Error(`Failed to update gist: ${res.status} ${res.statusText}`);
     } else {
-      console.log("Successfully updated gist with frontpage data.");
+      console.log(
+        `Successfully updated gist with frontpage data for date: ${date} and ${frontpage.articles.length} articles`
+      );
     }
   });
 

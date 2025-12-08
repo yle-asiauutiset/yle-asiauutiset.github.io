@@ -1,7 +1,8 @@
 import { getFeed } from '$lib/api';
 import 'reflect-metadata';
 import type { PageServerLoad } from './$types';
-import type { Feed } from 'shared';
+import { type Feed } from 'shared';
+import { getDateString } from '$lib/utils';
 
 export const load: PageServerLoad = async () => {
 	try {
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async () => {
 		console.error('Error fetching articles:', error);
 		const feed: Feed = {
 			articles: [],
-			generatedAt: new Date().toISOString()
+			generatedAt: getDateString()
 		};
 
 		return { feed };

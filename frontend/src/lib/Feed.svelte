@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Feed } from 'shared';
-	import { aikaasitten } from './utils';
+	import { type Feed } from 'shared';
+	import { aikaasitten, getDateString } from './utils';
 
 	let { feed }: { feed?: Feed } = $props();
 	let date = $derived(feed?.generatedAt ? new Date(feed.generatedAt) : undefined);
@@ -40,7 +40,7 @@
 	</div>
 
 	{#if !feed || feed?.articles?.length === 0}
-		<p class="text-gray-600">Artikkeleita ei löytynyt.</p>
+		<p class="mx-4 text-gray-600 md:mx-0">Artikkeleita ei löytynyt.</p>
 	{:else}
 		<div class="grid gap-4">
 			{#each feed.articles as article}
@@ -64,15 +64,19 @@
 		</div>
 	{/if}
 
-	<div class="mt-4 text-gray-600 md:px-8">
-		(<a class="underline" href={`/${previousDay.toISOString().split('T')[0]}`}>Edellinen päivä</a>)
+	<div class="mx-4 mt-4 text-gray-600 md:mx-0">
+		(<a class="underline" href={`/${getDateString(previousDay)}`}>Edellinen päivä</a>)
 		{#if nextDay}
-			(<a class="underline" href={`/${nextDay.toISOString().split('T')[0]}`}>Seuraava päivä</a>)
+			(<a class="underline" href={`/${getDateString(nextDay)}`}>Seuraava päivä</a>) (<a
+				class="underline"
+				href="/"
+			>
+				Tämä päivä
+			</a>)
 		{/if}
-		(<a class="underline" href="/">Tämä päivä</a>)
 		<!-- (<a class="underline" href="/faq">Usein kysytyt kysymykset</a>) -->
-		(<a class="underline" href="https://github.com/yle-asiauutiset/yle-asiauutiset.github.io"
-			>Lähdekoodi</a
-		>)
+		(<a class="underline" href="https://github.com/yle-asiauutiset/yle-asiauutiset.github.io">
+			Lähdekoodi
+		</a>)
 	</div>
 </div>

@@ -10,5 +10,7 @@
 <Feed {feed} />
 
 {#if error}
-	<p class="text-red-600">Käyttöraja saavutettu. Yritä myöhemmin uudelleen.</p>
+	<p class="container mx-auto px-4 text-red-600 md:px-8">
+		Käyttöraja saavutettu. Yritä myöhemmin uudelleen.
+	</p>
 {/if}
