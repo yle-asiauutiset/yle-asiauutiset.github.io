@@ -16,6 +16,7 @@ import {
   getTitleImprovementTemplate,
 } from "./title-improvement-template";
 import { logLLMObjectResponse, logLLMTextResponse } from "./utils";
+import { CronJob } from "cron";
 
 async function fetchArticles() {
   const dataSource = await getDataSource();
@@ -239,14 +240,50 @@ async function publishFrontpage() {
       console.log("Successfully updated gist with frontpage data.");
     }
   });
+
+  console.log("Dispatching build hook to update frontend site...");
+
+  await fetch(
+    "https://api.github.com/repos/yle-asiauutiset/yle-asiauutiset.github.io/dispatches",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `token ${process.env.GITHUB_ACTIONS_TOKEN}`,
+      },
+      body: JSON.stringify({
+        event_type: "webhook",
+      }),
+    }
+  ).then(async (res) => {
+    if (!res.ok) {
+      throw new Error(
+        `Failed to dispatch build hook: ${res.status} ${res.statusText} ${await res.text()}`
+      );
+    } else {
+      console.log("Successfully dispatched build hook.");
+    }
+  });
+}
+
+async function main() {
+  await fetchArticles().catch(console.error);
+  await processArticles().catch(console.error);
+  await publishFrontpage().catch(console.error);
+  await getDataSource().then((ds) => ds.close());
 }
 
 // Run if this file is executed directly
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   (async () => {
-    await fetchArticles().catch(console.error);
-    await processArticles().catch(console.error);
-    await publishFrontpage().catch(console.error);
-    await getDataSource().then((ds) => ds.close());
+    await main();
+
+    // Run once per day at 6.30 AM
+    const job = new CronJob("30 6 * * *", async () => {
+      console.log("Starting scheduled job: fetch, process, publish frontpage");
+      await main();
+    });
+
+    job.start();
   })();
 }

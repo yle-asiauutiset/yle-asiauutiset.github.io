@@ -5,6 +5,10 @@ export async function getFrontpage(
 ): Promise<Frontpage> {
 	const { date } = opts;
 
+	console.log(
+		`Fetching frontpage for date: ${date} from gist ${import.meta.env.VITE_GITHUB_GIST_ID}`
+	);
+
 	const frontpageUrl = await fetch(
 		`https://api.github.com/gists/${import.meta.env.VITE_GITHUB_GIST_ID}`
 		// {

@@ -8,9 +8,9 @@
     "backend"
   ],
   "scripts": {
+    "build": "npm run build -w shared && npm run build -w frontend",
     "dev:frontend": "npm run dev -w frontend",
-    "dev:backend": "npm run dev -w backend",
-    "dev:shared": "npm run dev -w shared",
+    "start:backend": "npm run dev -w backend",
     "build:shared": "npm run build -w shared",
     "mikro-orm:migration:up": "npm run mikro-orm:migration:up -w shared"
   }

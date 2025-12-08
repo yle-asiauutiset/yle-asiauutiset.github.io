@@ -17,7 +17,7 @@ From the article: "Tutkijat havaitsivat, että Branyasin suolisto oli kuin nuore
 Corrected headline: Tutkijat havaitsivat poikkeuksen 117-vuotiaaksi eläneessä – ”Suolisto[bakteeristo] oli kuin nuorella ihmisellä”
 The headline required correction, because to the reader the most interesting thing about the headline is what scientists think was the key behind her long life. Many people want to live longer, hence for most people the reason to her long life is the most interesting part of the article, as opposed to who the person was that lived long, for example.
 
-Review and if necessary fix the following headline based on the article below. If no changes are necessary, return an empty string.
+Review and if necessary fix the following headline based on the article below. If no changes are necessary, return an empty string. Don't change the language of the headline.
 ${opts.title}
 ${opts.body}`;
 };
