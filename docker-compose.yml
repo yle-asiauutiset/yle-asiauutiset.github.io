@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    image: ghcr.io/yle-asiauutiset/yle-asiauutiset.github.io:latest
+    container_name: yle-backend
+    restart: unless-stopped

@@ -216,8 +216,6 @@ async function publishFrontpage() {
     generatedAt: new Date(collection.createdAt)?.toISOString(),
   };
 
-  console.log(JSON.stringify(frontpage, null, 2));
-
   const files: Record<string, { content: string }> = {};
 
   files[`${date}.json`] = {

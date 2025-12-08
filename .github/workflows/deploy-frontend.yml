@@ -1,15 +1,15 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches: [master]
+  # push:
+  #   branches: [master]
   workflow_dispatch:
   repository_dispatch:
     types:
       - webhook
 
 jobs:
-  build-and-deploy:
+  deploy-frontend:
     runs-on: ubuntu-latest
     permissions:
       contents: read
