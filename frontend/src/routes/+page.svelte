@@ -6,8 +6,8 @@ import type { PageData } from './$types';
 </script>
 
 <div class="container mx-auto py-8 md:px-8">
-	<h1 class="text-2xl font-bold mx-4 md:mx-0">YLE Luetuimmat</h1>
-	<p class="font-semibold mb-6 mx-4 md:mx-0">{new Date(data.date ?? 0)?.toLocaleString("fi-FI")}</p>
+	<h1 class="text-2xl font-bold mx-4 md:mx-0">YLE Asiauutiset</h1>
+	<p class="font-semibold mb-6 mx-4 md:mx-0">Luetuimmat {new Date(data.date ?? 0)?.toLocaleString("fi-FI")}</p>
 	
 	{#if data.error}
 		<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">

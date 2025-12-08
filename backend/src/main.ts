@@ -6,6 +6,7 @@ import {
   Article,
   ArticleInCollection,
   Collection,
+  Frontpage,
   getDataSource,
 } from "shared";
 import { fileURLToPath } from "url";
@@ -185,11 +186,67 @@ async function processArticles() {
   console.log("Article processing completed.");
 }
 
+async function publishFrontpage() {
+  const dataSource = await getDataSource();
+  const em = dataSource.em.fork();
+
+  const date = new Date().toISOString().split("T")[0];
+
+  const collection = await em
+    .find(
+      Collection,
+      {},
+      { populate: ["articles"], orderBy: { createdAt: "DESC" }, limit: 1 }
+    )
+    .then((cols) => cols[0]);
+
+  if (!collection) {
+    console.error("No collection found to publish.");
+    return;
+  }
+
+  const frontpage: Frontpage = {
+    articles: collection.articles.map((article) => ({
+      ...article,
+      publishedAt: new Date(article.publishedAt as any)?.toISOString(),
+      createdAt: new Date(article.createdAt)?.toISOString(),
+      updatedAt: new Date(article.updatedAt)?.toISOString(),
+    })),
+    generatedAt: new Date(collection.createdAt)?.toISOString(),
+  };
+
+  console.log(JSON.stringify(frontpage, null, 2));
+
+  const files: Record<string, { content: string }> = {};
+
+  files[`${date}.json`] = {
+    content: JSON.stringify(frontpage, null, 2),
+  };
+
+  await fetch(`https://api.github.com/gists/${process.env.GITHUB_GIST_ID}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `token ${process.env.GITHUB_GIST_TOKEN}`,
+    },
+    body: JSON.stringify({
+      files,
+    }),
+  }).then((res) => {
+    if (!res.ok) {
+      throw new Error(`Failed to update gist: ${res.status} ${res.statusText}`);
+    } else {
+      console.log("Successfully updated gist with frontpage data.");
+    }
+  });
+}
+
 // Run if this file is executed directly
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   (async () => {
     await fetchArticles().catch(console.error);
     await processArticles().catch(console.error);
+    await publishFrontpage().catch(console.error);
     await getDataSource().then((ds) => ds.close());
   })();
 }

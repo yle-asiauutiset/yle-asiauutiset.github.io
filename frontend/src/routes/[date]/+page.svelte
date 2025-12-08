@@ -1,0 +1,43 @@
+<script lang="ts">
+	import { aikaasitten } from '$lib/utils';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+	let frontpage = $derived(data.frontpage);
+</script>
+
+<div class="container mx-auto py-8 md:px-8">
+	<h1 class="mx-4 text-2xl font-bold md:mx-0">YLE Asiauutiset</h1>
+	<p class="mx-4 mb-6 font-semibold md:mx-0">
+		Luetuimmat {new Date(frontpage.generatedAt ?? 0)?.toLocaleString('fi-FI')}
+	</p>
+
+	{#if !frontpage}
+		<div class="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+			<p>Tätä sivua ei ole generoitu.</p>
+		</div>
+	{:else if frontpage.articles.length === 0}
+		<p class="text-gray-600">No articles found in the database.</p>
+	{:else}
+		<div class="grid gap-4">
+			{#each frontpage.articles as article}
+				<div class="bg-[#1f2123] p-4 shadow-sm transition-shadow hover:shadow-md">
+					<h2 class="mb-1 text-xl font-semibold">
+						<a href={article.url} class="hover:underline" target="_blank"
+							>{article.correctedTitle ?? article.title}</a
+						>
+					</h2>
+					<div class="space-y-1 text-gray-300">
+						<p class="font-medium">{article.description}</p>
+						{#if article.correctedTitle}
+							<p>Alkuperäinen otsikko: {article.title}</p>
+						{/if}
+						<!-- <p><span class="font-medium">Image URL:</span> {article.imageUrl}</p>
+						<p><span class="font-medium">URL:</span> {article.url}</p> -->
+						<p class="mt-2 text-sm">{aikaasitten(new Date(article.publishedAt ?? 0))}</p>
+					</div>
+				</div>
+			{/each}
+		</div>
+	{/if}
+</div>

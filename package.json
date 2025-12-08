@@ -11,6 +11,7 @@
     "dev:frontend": "npm run dev -w frontend",
     "dev:backend": "npm run dev -w backend",
     "dev:shared": "npm run dev -w shared",
-    "build:shared": "npm run build -w shared"
+    "build:shared": "npm run build -w shared",
+    "mikro-orm:migration:up": "npm run mikro-orm:migration:up -w shared"
   }
 }
