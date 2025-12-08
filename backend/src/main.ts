@@ -276,8 +276,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   (async () => {
     await main();
 
-    // Run once per day at 6.30 AM
-    const job = new CronJob("30 6 * * *", async () => {
+    // Run once per day at 7.05 AM
+    const job = new CronJob("5 7 * * *", async () => {
       console.log("Starting scheduled job: fetch, process, publish frontpage");
       await main();
     });

@@ -1,8 +1,8 @@
-import type { Frontpage } from 'shared';
+import type { Feed } from 'shared';
 
-export async function getFrontpage(
+export async function getFeed(
 	opts: { date: string } = { date: new Date().toISOString().split('T')[0] }
-): Promise<Frontpage> {
+): Promise<Feed> {
 	const { date } = opts;
 
 	console.log(
@@ -22,11 +22,11 @@ export async function getFrontpage(
 
 	if (frontpageUrl) {
 		const frontpageData = await fetch(frontpageUrl).then((res) => res.json());
-		return frontpageData as Frontpage;
+		return frontpageData as Feed;
 	}
 
 	return {
 		articles: [],
-		generatedAt: new Date().toISOString()
+		generatedAt: date
 	};
 }

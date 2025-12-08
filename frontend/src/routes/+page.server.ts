@@ -1,6 +1,7 @@
-import { getFrontpage } from '$lib/api';
+import { getFeed } from '$lib/api';
 import 'reflect-metadata';
 import type { PageServerLoad } from './$types';
+import type { Feed } from 'shared';
 
 export const load: PageServerLoad = async () => {
 	try {
@@ -11,17 +12,16 @@ export const load: PageServerLoad = async () => {
 		// 	.find(Collection, {}, { populate: ['articles'], orderBy: { createdAt: 'DESC' }, limit: 1 })
 		// 	.then((cols) => cols[0]);
 
-		const frontpage = await getFrontpage();
+		const feed = await getFeed();
 
-		return {
-			date: frontpage?.generatedAt ?? null,
-			articles: JSON.parse(JSON.stringify(frontpage?.articles ?? []))
-		};
+		return { feed };
 	} catch (error) {
 		console.error('Error fetching articles:', error);
-		return {
+		const feed: Feed = {
 			articles: [],
-			error: 'Failed to fetch articles'
+			generatedAt: new Date().toISOString()
 		};
+
+		return { feed };
 	}
 };

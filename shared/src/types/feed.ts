@@ -13,7 +13,7 @@ type Article = {
   updatedAt?: DateString;
 };
 
-export type Frontpage = {
+export type Feed = {
   articles: Array<Article>;
-  generatedAt: DateString;
+  generatedAt?: DateString;
 };
