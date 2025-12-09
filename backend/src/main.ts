@@ -19,6 +19,8 @@ import {
 import { logLLMObjectResponse, logLLMTextResponse } from "./utils";
 import { CronJob } from "cron";
 
+const articleCount = Number(process.env.ARTICLE_COUNT) || 15;
+
 async function fetchArticles() {
   const dataSource = await getDataSource();
   const em = dataSource.em.fork();
@@ -40,7 +42,8 @@ async function fetchArticles() {
 
           return { title, description, link, publishedAt };
         })
-        .get();
+        .get()
+        .slice(0, articleCount);
 
       return articles;
     });
@@ -268,6 +271,7 @@ async function publishFrontpage() {
 }
 
 async function main() {
+  console.log("Starting scheduled job: fetch, process, publish frontpage");
   await getDataSource().then((ds) => ds.connect());
   await fetchArticles().catch(console.error);
   await processArticles().catch(console.error);
@@ -282,10 +286,15 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
 
     // Run once per day at 7.05 AM
     const job = new CronJob("5 7 * * *", async () => {
-      console.log("Starting scheduled job: fetch, process, publish frontpage");
+      await main();
+    });
+
+    // Run once per day at 4.05 PM
+    const job2 = new CronJob("5 16 * * *", async () => {
       await main();
     });
 
     job.start();
+    job2.start();
   })();
 }

@@ -32,7 +32,7 @@
 				Yle Asiauutiset on Ylen RSS-syötteestä generoitu uutissyöte, jonka otsikoita on tarpeen
 				mukaan muokattu artikkelin sisällön perusteella klikkiotsikoiden välttämiseksi. Syöte
 				luodaan kielimallin avulla, ja joskus muokatut otsikot voivat sisältää virheitä. Sivu
-				päivittyy kerran päivässä noin klo 7:10. Sivusto ei ole Ylen virallinen sivu.
+				päivittyy kaksi kertaa päivässä noin klo 7:10 ja 16:10. Sivusto ei ole Ylen virallinen sivu.
 			</p>
 
 			<!-- <a href="/faq" class="underline">Lue lisää</a> -->
