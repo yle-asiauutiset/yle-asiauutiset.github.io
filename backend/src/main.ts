@@ -268,6 +268,7 @@ async function publishFrontpage() {
 }
 
 async function main() {
+  await getDataSource().then((ds) => ds.connect());
   await fetchArticles().catch(console.error);
   await processArticles().catch(console.error);
   await publishFrontpage().catch(console.error);
