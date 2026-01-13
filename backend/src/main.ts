@@ -1,4 +1,4 @@
-import { anthropic } from "@ai-sdk/anthropic";
+import { google } from "@ai-sdk/google";
 import { generateObject, generateText } from "ai";
 import * as cheerio from "cheerio";
 import "dotenv/config";
@@ -142,14 +142,14 @@ async function processArticles() {
     });
 
     const { text: analysis } = await generateText({
-      model: anthropic("claude-sonnet-4-5-20250929"),
+      model: google("gemini-flash-latest"),
       prompt: titleImprovementPrompt,
     }).then(logLLMTextResponse);
 
     const extractImprovedTitlePrompt = extractImprovedTitle({ analysis });
     console.log("Generating improved title");
     const { object } = await generateObject({
-      model: anthropic("claude-haiku-4-5-20251001"),
+      model: google("gemini-flash-latest"),
       schema: z.object({
         improvedTitle: z.string().optional(),
       }),
