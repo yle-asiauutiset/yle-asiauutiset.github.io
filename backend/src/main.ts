@@ -26,7 +26,7 @@ async function fetchArticles() {
   const em = dataSource.em.fork();
 
   const mostPopularArticles = await fetch(
-    "https://yle.fi/rss/uutiset/luetuimmat"
+    "https://yle.fi/rss/uutiset/paauutiset"
   )
     .then((r) => r.text())
     .then((xmlString) => {
