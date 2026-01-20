@@ -20,13 +20,22 @@ import { logLLMObjectResponse, logLLMTextResponse } from "./utils";
 import { CronJob } from "cron";
 
 const articleCount = Number(process.env.ARTICLE_COUNT) || 15;
+const rateLimitRequestsPerMinute =
+  Number(process.env.RATE_LIMIT_REQUESTS_PER_MINUTE) || 0;
+const rateLimitRequestsPerDay =
+  Number(process.env.RATE_LIMIT_REQUESTS_PER_DAY) || 0;
+let dailyRequestCount = 0;
 
+/**
+ * Fetch articles from Yle RSS feed, save new ones to the database,
+ * and create a new frontpage collection.
+ */
 async function fetchArticles() {
   const dataSource = await getDataSource();
   const em = dataSource.em.fork();
 
   const mostPopularArticles = await fetch(
-    "https://yle.fi/rss/uutiset/paauutiset"
+    "https://yle.fi/rss/uutiset/paauutiset",
   )
     .then((r) => r.text())
     .then((xmlString) => {
@@ -68,7 +77,7 @@ async function fetchArticles() {
       } else {
         return exists;
       }
-    })
+    }),
   );
 
   const frontpage = em.create(Collection, {});
@@ -89,19 +98,30 @@ async function fetchArticles() {
   console.log("Created new frontpage with articles:", articles.length);
 }
 
+/**
+ * Process articles that haven't had their titles improved yet.
+ */
 async function processArticles() {
   const dataSource = await getDataSource();
   const em = dataSource.em.fork();
 
-  const articlesToProcess = await em.find(Article, {
-    didProcessTitle: false,
-  });
+  const articlesToProcess = await em
+    .find(
+      Collection,
+      {},
+      { populate: ["articles"], orderBy: { createdAt: "DESC" }, limit: 1 },
+    )
+    .then(
+      (cols) =>
+        cols[0]?.articles
+          .filter((a) => !a.didProcessTitle)
+          .slice(0, articleCount) || [],
+    );
 
-  for (const article of articlesToProcess.slice(
-    0,
-    Number(process.env.MAX_PROCESSED_ARTICLES) || articlesToProcess.length
-  )) {
-    console.log("Processing article:", article.title, article.url);
+  console.log(`Found ${articlesToProcess.length} articles to process.`);
+
+  for (const article of articlesToProcess) {
+    console.log("Fetching article body for URL:", article.url);
     const articleBody = await fetch(article.url)
       .then((res) => res.text())
       .then((html) => {
@@ -128,32 +148,47 @@ async function processArticles() {
       });
 
     if (!articleBody) {
-      console.warn(
-        `Can't process, article body is empty for URL: ${article.url}`
+      console.warn("Could not extract body for article:", article.url);
+      continue;
+    }
+
+    article.body = articleBody;
+    await em.persistAndFlush(article);
+  }
+
+  for (const article of articlesToProcess) {
+    if (
+      rateLimitRequestsPerDay &&
+      dailyRequestCount >= rateLimitRequestsPerDay
+    ) {
+      console.log(
+        `Daily request limit of ${rateLimitRequestsPerDay} reached. Skipping processing.`,
       );
-      // article.didProcessTitle = true;
-      // await articleRepository.save(article);
-      return;
+      continue;
+    } else {
+      dailyRequestCount++;
+    }
+
+    console.log("Generating improved title:", article.title, article.url);
+
+    if (!article.body) {
+      console.warn(
+        `Can't process, article body is empty for URL: ${article.url}`,
+      );
+      continue;
     }
 
     const titleImprovementPrompt = getTitleImprovementTemplate({
       title: article.title,
-      body: articleBody,
+      body: article.body,
     });
 
-    const { text: analysis } = await generateText({
-      model: google("gemini-flash-latest"),
-      prompt: titleImprovementPrompt,
-    }).then(logLLMTextResponse);
-
-    const extractImprovedTitlePrompt = extractImprovedTitle({ analysis });
-    console.log("Generating improved title");
     const { object } = await generateObject({
       model: google("gemini-flash-latest"),
       schema: z.object({
         improvedTitle: z.string().optional(),
       }),
-      prompt: extractImprovedTitlePrompt,
+      prompt: titleImprovementPrompt,
     })
       .then(logLLMObjectResponse)
       .catch((err) => {
@@ -162,27 +197,25 @@ async function processArticles() {
       });
 
     if (!object) {
-      console.error("Failed to extract improved title.");
-      return;
+      console.error("Failed to extract improved title. No object returned.");
+      continue;
     }
 
     console.log("Extracted object:", object, "\n\n===\n\n");
 
     article.correctedTitle = object.improvedTitle || undefined;
     article.didProcessTitle = true;
-    article.body = articleBody || undefined;
     await em.persistAndFlush(article);
 
     console.log(
-      `Processed article: "${article.title}" -> "${article.correctedTitle}"`
+      `Processed article: "${article.title}" -> "${article.correctedTitle}"`,
     );
 
     if (
-      process.env.RATE_LIMIT_REQUESTS_PER_MINUTE &&
+      rateLimitRequestsPerMinute &&
       articlesToProcess.indexOf(article) < articlesToProcess.length - 1
     ) {
-      const delay =
-        (60 / Number(process.env.RATE_LIMIT_REQUESTS_PER_MINUTE)) * 1000 + 2000;
+      const delay = (60 / rateLimitRequestsPerMinute) * 1000 + 2000;
       console.log(`Waiting for ${delay} ms to respect rate limits...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
@@ -191,6 +224,9 @@ async function processArticles() {
   console.log("Article processing completed.");
 }
 
+/**
+ * Publish the latest frontpage collection to GitHub Gist and trigger a rebuild of the frontend site.
+ */
 async function publishFrontpage() {
   const dataSource = await getDataSource();
   const em = dataSource.em.fork();
@@ -201,7 +237,7 @@ async function publishFrontpage() {
     .find(
       Collection,
       {},
-      { populate: ["articles"], orderBy: { createdAt: "DESC" }, limit: 1 }
+      { populate: ["articles"], orderBy: { createdAt: "DESC" }, limit: 1 },
     )
     .then((cols) => cols[0]);
 
@@ -240,7 +276,7 @@ async function publishFrontpage() {
       throw new Error(`Failed to update gist: ${res.status} ${res.statusText}`);
     } else {
       console.log(
-        `Successfully updated gist with frontpage data for date: ${date} and ${frontpage.articles.length} articles`
+        `Successfully updated gist with frontpage data for date: ${date} and ${frontpage.articles.length} articles`,
       );
     }
   });
@@ -258,11 +294,11 @@ async function publishFrontpage() {
       body: JSON.stringify({
         event_type: "webhook",
       }),
-    }
+    },
   ).then(async (res) => {
     if (!res.ok) {
       throw new Error(
-        `Failed to dispatch build hook: ${res.status} ${res.statusText} ${await res.text()}`
+        `Failed to dispatch build hook: ${res.status} ${res.statusText} ${await res.text()}`,
       );
     } else {
       console.log("Successfully dispatched build hook.");
@@ -286,6 +322,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
 
     // Run once per day at 7.05 AM
     const job = new CronJob("5 7 * * *", async () => {
+      dailyRequestCount = 0;
       await main();
     });
 
