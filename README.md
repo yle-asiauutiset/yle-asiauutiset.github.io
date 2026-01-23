@@ -1,10 +1,10 @@
-# YLE Asiauutiset
+# YLE Asiaotsikot
 
 A web application that fetches YLE's (Finnish Broadcasting Company) most popular news articles and uses AI to improve clickbait headlines, making them more informative and accurate.
 
 ## Overview
 
-YLE Asiauutiset is an automated news feed generator that:
+YLE Asiaotsikot is an automated news feed generator that:
 
 - Fetches the latest news from YLE's RSS feed
 - Uses AI (Google Claude) to analyze articles and improve clickbait titles

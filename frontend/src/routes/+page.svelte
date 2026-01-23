@@ -9,7 +9,7 @@
 <Feed {feed} />
 
 <!-- <div class="container mx-auto py-8 md:px-8">
-	<h1 class="mx-4 text-2xl font-bold md:mx-0">YLE Asiauutiset</h1>
+	<h1 class="mx-4 text-2xl font-bold md:mx-0">YLE Asiaotsikot</h1>
 	<p class="mx-4 mb-6 font-semibold md:mx-0">
 		Luetuimmat {new Date(data.date ?? 0)?.toLocaleString('fi-FI')}
 	</p>

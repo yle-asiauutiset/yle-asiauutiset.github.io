@@ -284,7 +284,7 @@ async function publishFrontpage() {
   console.log("Dispatching build hook to update frontend site...");
 
   await fetch(
-    "https://api.github.com/repos/yle-asiauutiset/yle-asiauutiset.github.io/dispatches",
+    "https://api.github.com/repos/yle-asiaotsikot/yle-asiaotsikot.github.io/dispatches",
     {
       method: "POST",
       headers: {

@@ -20,7 +20,7 @@
 </script>
 
 <div class="container mx-auto py-8 md:px-8">
-	<h1 class="mx-4 text-2xl font-bold md:mx-0">YLE Asiauutiset</h1>
+	<h1 class="mx-4 text-2xl font-bold md:mx-0">YLE Asiaotsikot</h1>
 	<p class="mx-4 mb-6 font-semibold md:mx-0">
 		Päivitetty {date?.toLocaleString('fi-FI') ?? '-'}
 	</p>
@@ -29,7 +29,7 @@
 		<!-- <h2 class="mb-1 text-xl font-semibold">Asd</h2> -->
 		<div class="space-y-1 text-gray-300">
 			<p class="">
-				Yle Asiauutiset on Ylen RSS-syötteestä generoitu uutissyöte, jonka otsikoita on tarpeen
+				Yle Asiaotsikot on Ylen RSS-syötteestä generoitu uutissyöte, jonka otsikoita on tarpeen
 				mukaan muokattu artikkelin sisällön perusteella klikkiotsikoiden välttämiseksi. Syöte
 				luodaan kielimallin avulla, ja joskus muokatut otsikot voivat sisältää virheitä. Sivu
 				päivittyy kaksi kertaa päivässä noin klo 7:10 ja 16:10. Sivusto ei ole Ylen virallinen sivu.
@@ -75,7 +75,7 @@
 			</a>)
 		{/if}
 		<!-- (<a class="underline" href="/faq">Usein kysytyt kysymykset</a>) -->
-		(<a class="underline" href="https://github.com/yle-asiauutiset/yle-asiauutiset.github.io">
+		(<a class="underline" href="https://github.com/yle-asiaotsikot/yle-asiaotsikot.github.io">
 			Lähdekoodi
 		</a>)
 	</div>
